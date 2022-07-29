@@ -1,12 +1,32 @@
+{% block content %}
 <html>
+	<head>
+	</head>
 	<body bgcolor="black">   
 		<center>
-			<h2 style="color:#8700FF">Hi there MDG Member !</h2>
-			<h1 style="color:white; display: inline">Welcome to <h1 style="color:#12E7DA; display: inline">Castle Black</h1></h1>
-			<table>
-				<td style="padding:25px"><a href = "/open"><h3>Open</h3></a></td>
-				<td style="padding:25px"><a href = "/close"><h3>Close</h3></a></td>
-			</table>
+			{% if uname %}
+				{% if uname == 'error' %}
+					<h2 style="color: #12E7DA">Sorry !! This username and password are invalid</h2>
+				{% else %}
+					<h2 style="color:#8700FF">Hi there {{ uname }} !!</h2>
+					<h1 style="color:white; display: inline">Welcome to <h1 style="color:#12E7DA; display: inline">Castle Black</h1></h1>
+					<table>
+						<td style="padding:25px"><a href = "/open"><button>Open</button></a></td>
+						<td style="padding:25px"><a href = "/close"><button>Close</button></a></td>
+					</table>
+					<h4><a href="/change_pswd/{{ uname }}">change my password</a></h4>
+				{% endif %}
+			{% else %}
+					<form method="POST">
+						{{ form.hidden_tag() }}
+						<table>
+							<tr><td><h3 style="color:#8700FF">{{ form.uname.label }}</h3>{{ form.uname() }}</td></tr>
+							<tr><td><h3 style="color:#8700FF">{{ form.pswd.label }}</h3>{{ form.pswd() }}</td></tr>
+							<tr><td style="padding-top:10px">{{ form.submit() }}</td></tr>
+						</table>
+					</form>
+			{% endif %}		
 		</center>
 	</body>
 </html>
+{% endblock %}

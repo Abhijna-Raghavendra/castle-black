@@ -1,0 +1,23 @@
+{% block content %}
+<html>
+	<head>
+	</head>
+	<body bgcolor="black">   
+		<center>
+			{% if status %}
+                <h2 style="color:#8700FF">Credentials changed successfully!</h2>
+				<h3 style="color:#8700FF"><a href="/">Return home</a></h3>
+			{% else %}
+				<form method="POST">
+					{{ form.hidden_tag() }}
+	    			<table>
+						<tr><td><h3 style="color:#12E7DA">{{ form.pswd1.label }}</h3>{{ form.pswd1() }}</td></tr>
+						<tr><td><h3 style="color:#12E7DA">{{ form.pswd2.label }}</h3>{{ form.pswd2() }}</td></tr>
+						<tr><td style="padding-top:10px">{{ form.submit() }}</td></tr>
+					</table>
+				</form>
+    		{% endif %}		
+		</center>
+	</body>
+</html>
+{% endblock %}
