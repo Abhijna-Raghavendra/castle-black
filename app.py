@@ -11,14 +11,14 @@ import jwt
 import RPi.GPIO as GPIO
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "mdg secret key 5678"
+app.config['SECRET_KEY'] = "mdg secret key 1234"
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(18, GPIO.OUT)
 
 wb = load_workbook('sheet.xlsx')
-ws = wb.active
+ws = wb['passwords']
 logs = wb['logs']
 
 
@@ -75,12 +75,12 @@ def login():
 		form.pswd.data = ''
 		token = jwt.encode({
 				'user': uname,
-				'exp': datetime.utcnow() + timedelta(seconds=10)
+				'exp': datetime.utcnow() + timedelta(seconds=100)
 		},
 				app.config['SECRET_KEY'])
 	else:
 		uname = 'error'
-	return render_template('index.html', uname = uname, form = form, token = token)
+	return render_template('index.html', uname = uname, form = form, token = token.decode('utf-8'))
 
 @app.route('/change_pswd/<usr>', methods=['GET','POST'])
 @token_required
