@@ -5,14 +5,14 @@ from wtforms.validators import DataRequired
 from openpyxl.workbook import Workbook
 from openpyxl import load_workbook
 from werkzeug.security import generate_password_hash, check_password_hash
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "secret key"
 
-#GPIO.setwarnings(False)
-#GPIO.setmode(GPIO.BCM)
-#GPIO.setup(18, GPIO.OUT)
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(18, GPIO.OUT)
 
 wb = load_workbook('sheet.xlsx')
 ws = wb.active
@@ -43,7 +43,6 @@ class PswdForm(FlaskForm):
 					if cell.value == usr:
 						ws['B' + str(cell.row)] = generate_password_hash(self.pswd1.data)
 						wb.save('sheet.xlsx')
-						print('succesfully edited')
 						return True
 		else:
 			return False
@@ -74,10 +73,10 @@ def chng_pswd(usr):
 
 @app.route('/<command>', methods=['GET','POST'])
 def process(command):
-	#if command == 'open':
-	#GPIO.output(18,0)
-	#elif command == 'close':
-	#GPIO.output(18,1)
+	if command == 'open':
+		GPIO.output(18,0)
+	elif command == 'close':
+		GPIO.output(18,1)
 	return render_template('thankyou.html', cmd = command)
 
 	
