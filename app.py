@@ -1,14 +1,17 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, jsonify, session
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField  
 from wtforms.validators import DataRequired
 from openpyxl.workbook import Workbook
 from openpyxl import load_workbook
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timedelta
+from functools import wraps
+import jwt
 import RPi.GPIO as GPIO
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "secret key"
+app.config['SECRET_KEY'] = "mdg secret key 5678"
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
@@ -16,6 +19,7 @@ GPIO.setup(18, GPIO.OUT)
 
 wb = load_workbook('sheet.xlsx')
 ws = wb.active
+logs = wb['logs']
 
 
 class LoginForm(FlaskForm):
@@ -47,19 +51,39 @@ class PswdForm(FlaskForm):
 		else:
 			return False
 
+def token_required(func):
+	@wraps(func)
+	def decorated(*args, **kwargs):
+		token = request.args.get('token')
+		if not token:
+			return 'token is missing'
+		try:
+			data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+		except:
+			return 'Invalid token'
+		return func(*args, **kwargs)
+	return decorated
+
 @app.route('/', methods=['GET','POST'])
 def login():
 	uname = None
+	token = {}
 	form = LoginForm()
 	if form.validate_on_submit():
 		uname = form.uname.data
 		form.uname.data = ''
 		form.pswd.data = ''
+		token = jwt.encode({
+				'user': uname,
+				'exp': datetime.utcnow() + timedelta(seconds=10)
+		},
+				app.config['SECRET_KEY'])
 	else:
 		uname = 'error'
-	return render_template('index.html', uname = uname, form = form)
+	return render_template('index.html', uname = uname, form = form, token = token)
 
 @app.route('/change_pswd/<usr>', methods=['GET','POST'])
+@token_required
 def chng_pswd(usr):
 	form = PswdForm()
 	pswd1 = None
@@ -71,12 +95,16 @@ def chng_pswd(usr):
 	return render_template('/pswd_chng.html', status = pswd1, form = form)
 
 
-@app.route('/<command>', methods=['GET','POST'])
-def process(command):
+@app.route('/<command>/<usr>', methods=['GET','POST'])
+@token_required
+def process(command, usr):
 	if command == 'open':
+		logs['A'+str(logs.max_row+1)] = usr + ' opened door at ' + str(datetime.utcnow()) + ' (UTC)' 
 		GPIO.output(18,0)
 	elif command == 'close':
+		logs['A'+str(logs.max_row+1)] = usr + ' closed door at ' + str(datetime.utcnow()) + ' (UTC)' 
 		GPIO.output(18,1)
+	wb.save('sheet.xlsx')
 	return render_template('thankyou.html', cmd = command)
 
 	

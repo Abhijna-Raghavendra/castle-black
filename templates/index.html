@@ -11,10 +11,10 @@
 					<h2 style="color:#8700FF">Hi there {{ uname }} !!</h2>
 					<h1 style="color:white; display: inline">Welcome to <h1 style="color:#12E7DA; display: inline">Castle Black</h1></h1>
 					<table>
-						<td style="padding:25px"><a href = "/open"><button>Open</button></a></td>
-						<td style="padding:25px"><a href = "/close"><button>Close</button></a></td>
+						<td style="padding:25px"><a href = "/open/{{ uname }}?token={{ token }}"><button>Open</button></a></td>
+						<td style="padding:25px"><a href = "/close/{{ uname }}?token={{ token }}"><button>Close</button></a></td>
 					</table>
-					<h4><a href="/change_pswd/{{ uname }}">change my password</a></h4>
+					<h4><a href="/change_pswd/{{ uname }}?token={{ token }}">change my password</a></h4>
 				{% endif %}
 			{% else %}
 					<form method="POST">
@@ -30,3 +30,4 @@
 	</body>
 </html>
 {% endblock %}
+
