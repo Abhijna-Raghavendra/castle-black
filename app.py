@@ -5,13 +5,15 @@ from wtforms.validators import DataRequired
 from openpyxl.workbook import Workbook
 from openpyxl import load_workbook
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from functools import wraps
 import jwt
+import os
 import RPi.GPIO as GPIO
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "mdg secret key 1234"
+app.config['SECRET_KEY'] = os.environ.get("MDG_SECRET_KEY", "")
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
@@ -80,7 +82,7 @@ def login():
 				app.config['SECRET_KEY'])
 	else:
 		uname = 'error'
-	return render_template('index.html', uname = uname, form = form, token = token.decode('utf-8'))
+	return render_template('index.html', uname = uname, form = form, token = token)
 
 @app.route('/change_pswd/<usr>', methods=['GET','POST'])
 @token_required
