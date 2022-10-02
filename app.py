@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from functools import wraps
+from gpiozero import Servo
 import jwt
 import os
 import RPi.GPIO as GPIO
@@ -17,7 +18,8 @@ app.config['SECRET_KEY'] = os.environ.get("MDG_SECRET_KEY", "")
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(18, GPIO.OUT)
+GPIO.setup(4, GPIO.OUT)
+servo = Servo(4)
 
 wb = load_workbook('sheet.xlsx')
 ws = wb['passwords']
@@ -102,10 +104,10 @@ def chng_pswd(usr):
 def process(command, usr):
 	if command == 'open':
 		logs['A'+str(logs.max_row+1)] = usr + ' opened door at ' + str(datetime.utcnow()) + ' (UTC)' 
-		GPIO.output(18,0)
+		servo.value = -1
 	elif command == 'close':
 		logs['A'+str(logs.max_row+1)] = usr + ' closed door at ' + str(datetime.utcnow()) + ' (UTC)' 
-		GPIO.output(18,1)
+		servo.value = 1
 	wb.save('sheet.xlsx')
 	return render_template('thankyou.html', cmd = command)
 
